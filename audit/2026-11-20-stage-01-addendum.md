@@ -1,27 +1,19 @@
-# Stage 01 addendum — historical objects, publication rights and account security
+# Historical objects and account-security follow-up
 
-Audit follow-up date: 2026-11-20. This document supplements `2026-11-20-stage-01.md`; it does not supersede the SHA-pinned baseline and makes no changes to prior work.
+**Review date:** 20 November 2026. This note records what could be established through the connected GitHub repository and what remained outside its reach.
 
-## Git history verification
+The 14 reachable commits were inspected through their Git trees, each returned without truncation. Earlier MATLAB paths, including `Image Processinng`, were identified and the accessible historical text variants screened for common private-key blocks, GitHub token patterns, AWS access-key identifiers and simple credential assignments. The review did not identify matching text. It was not a full history-aware scan of raw Git objects.
 
-The 14 accessible commits from the 2024-11-02 to 2024-11-07 history were enumerated. Each commit's recursive Git tree was separately queried and reported as not truncated. This exposed historical paths from `Image Processinng`, including previous MATLAB versions that no longer appear under the current paths. The additional historical **text** blob variants were checked for common private-key headers, GitHub PATs, AWS access keys, straightforward credential assignments and user-specific absolute paths; no hits were found. Accessible commit diffs were also reviewed for these basic patterns.
+Attempts to retrieve certain `.DS_Store` and PDF blobs as text failed because they contain binary data. Their contents, metadata and embedded objects were not independently examined. A local clone and a dedicated secret scanner remain necessary if formal assurance is required. Potential credentials should be revoked or rotated before considering a history rewrite.
 
-**Limit:** This is an API-based textual pattern review, not Gitleaks across the full locally cloned Git object database. Binary payloads (historical `.DS_Store` and two publication PDFs) were not decoded: the GitHub connector returned Unicode decoding errors for binary blobs. History beyond the reachable commits and any hidden server-side data is not certified.
+## Publications kept in place
 
-## Publication rights
+The repository contains Nobuyuki Otsu's 1979 IEEE paper, *A Threshold Selection Method from Gray-Level Histograms* (DOI: [10.1109/TSMC.1979.4310076](https://doi.org/10.1109/TSMC.1979.4310076)), and a copy of Pierre Wellner's *Adaptive Thresholding for the DigitalDesk* (technical report EPC-1993-110, 1993). Their publication provenance is identifiable, but the redistribution permissions of the **specific PDFs committed here** have not been established.
 
-- `Image Processing/Matlab/Chapter 2 - Image Thresholding/OTSU Binarization/A Threshold Selection Method from Gray-Level Histograms.pdf`: the identified Otsu publication is Nobuyuki Otsu (1979), IEEE Transactions on Systems, Man, and Cybernetics, DOI https://doi.org/10.1109/TSMC.1979.4310076. An IEEE copyright notice appears on publicly available copies. That fact does *not* demonstrate the redistribution rights of the particular PDF blob stored in this repository.
-- `Image Processing/Matlab/Chapter 2 - Image Thresholding/Wellner Thresholding/Wellner Method.pdf`: the Wellner work corresponds to Pierre Wellner's *Adaptive Thresholding for the DigitalDesk*, Technical Report EPC-1993-110, publicly indexed with a Rank Xerox Ltd copyright notice. The permission status of this exact repository PDF is not established.
-- Both existing documents remain untouched. A later owner-approved cleanup may replace hosted PDFs with bibliographic citations and official links after metadata, version and license checks. Removal from the current tree alone would not remove historical Git blobs.
+The repository owner instructed that both files remain untouched and that PDF cleanup be removed from the present work programme. This resolves the requested repository action, not the underlying copyright question. No PDF was modified or removed.
 
-## Owner-only account checklist
+## Settings available only to the owner
 
-GitHub account 2FA, recovery codes, passkeys, active sessions, token scopes and authorized OAuth/GitHub Apps are private. This connector does not expose them. The owner should verify https://github.com/settings/security and https://github.com/settings/applications; do not supply secrets or recovery codes to collaborators or tools.
+The connector did not expose the account's two-factor authentication status, passkeys, recovery methods, active sessions or authorization scopes. These can be reviewed directly in [GitHub authentication settings](https://github.com/settings/security) and [authorized applications](https://github.com/settings/applications). Private keys, passwords and recovery codes should not be shared to complete this review.
 
-## Local security completion requirement
-
-Use a trusted local clone with all reachable refs, run a current history-aware scanner (for example Gitleaks), inspect Git-tracked PDF metadata/embedded files and `.DS_Store` strings locally, and keep any resulting finding report private. Any confirmed leaked secrets should be revoked and rotated before changes to Git history are considered. The current state is **reviewed with limitations**, not formally security-certified.
-
-## Owner disposition (2026-11-20)
-
-The repository owner has explicitly instructed that the two existing publication PDFs are to remain in the repository, and that no further PDF clean-up be included in the current GitHub professionalization workflow. The **requested action is closed by owner decision**. This is not a legal opinion or independent evidence of republication permission. The original documents, their Git objects and their history are preserved unchanged.
+The original source code, historical commits and account settings were not modified by this follow-up.
