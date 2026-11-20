@@ -3,8 +3,20 @@ name: MATLAB Final Verification
 on:
   push:
     branches:
+      - main
       - fix/stage-03-final-evaluation-2026-11-20
       - fix/stage-03-quality-guard-2026-11-20
+    paths:
+      - '**/*.m'
+      - 'tests/final/original_source_manifest.csv'
+      - '.github/workflows/matlab-final-verification.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**/*.m'
+      - 'tests/final/original_source_manifest.csv'
+      - '.github/workflows/matlab-final-verification.yml'
   workflow_dispatch:
 
 permissions:
