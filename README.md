@@ -8,13 +8,15 @@ Although my broader research interests include biomedical signal processing, the
 
 | Topic | Source | What is implemented |
 |---|---|---|
-| Otsu thresholding | [Otsu folder](Image%20Processing/Matlab/Chapter%202%20-%20Image%20Thresholding/OTSU%20Binarization) | Grayscale histograms, between-class variance, and binary decisions |
-| Local mean thresholding | [Mean folder](Image%20Processing/Matlab/Chapter%202%20-%20Image%20Thresholding/Simple%20Mean%20Binarization) | Padded neighborhood means and contrast-margin decisions |
-| Wellner thresholding | [Wellner folder](Image%20Processing/Matlab/Chapter%202%20-%20Image%20Thresholding/Wellner%20Thresholding) | Direction-dependent neighborhood references |
-| Bradley thresholding | [Bradley folder](Image%20Processing/Matlab/Chapter%202%20-%20Image%20Thresholding/Bradley%20Thresholding) | Local thresholds computed from summed-area tables |
-| Basic signals | [Signal Processing](Signal%20Processing/Matlab/Chapter%201-%20Define%20Signal) | Continuous and discrete signal examples |
+| Otsu thresholding | [Method, code and limitations](Image%20Processing/Matlab/Chapter%202%20-%20Image%20Thresholding/OTSU%20Binarization/README.md) | Grayscale histograms, between-class variance, and binary decisions |
+| Local mean thresholding | [Method, code and limitations](Image%20Processing/Matlab/Chapter%202%20-%20Image%20Thresholding/Simple%20Mean%20Binarization/README.md) | Padded neighborhood means and contrast-margin decisions |
+| Wellner thresholding | [Method, code and limitations](Image%20Processing/Matlab/Chapter%202%20-%20Image%20Thresholding/Wellner%20Thresholding/README.md) | Direction-dependent neighborhood references |
+| Bradley thresholding | [Method, code and limitations](Image%20Processing/Matlab/Chapter%202%20-%20Image%20Thresholding/Bradley%20Thresholding/README.md) | Local thresholds computed from summed-area tables |
+| Basic signals | [Definitions, plots and run instructions](Signal%20Processing/Matlab/Chapter%201-%20Define%20Signal/README.md) | Continuous and discrete signal examples |
 
 The four image-processing folders include scripts that produce figures. The underlying helper functions can also be tested without using the interactive demonstrations.
+
+The [evaluation protocol](docs/EXPERIMENT_PROTOCOL.md) specifies the synthetic fixture generator, foreground convention and quality metrics. [Results and figure provenance](docs/RESULTS_AND_FIGURES.md) gives the measured results for all 22 configurations and identifies the actual MATLAB figure exports. The figures from the completed workflow are available as temporary GitHub Actions artifacts; they are not presented as independently labeled real-world samples.
 
 ## Reproduce the MATLAB tests
 
@@ -30,7 +32,7 @@ The original 14 MATLAB source files are preserved under [`tests/legacy_snapshot/
 
 ## Results and interpretation
 
-The [verified MATLAB R2024a workflow](https://github.com/hesamghd/Innovation-Showcase-/actions/runs/44763150733) passed the regression and boundary tests and evaluated 22 method configurations on 60 synthetic images. A particular finding concerns centered Bradley thresholding:
+The [MATLAB R2024a run on the published source](https://github.com/hesamghd/Innovation-Showcase-/actions/runs/44769293994) passed the regression and boundary tests and evaluated 22 method configurations on 60 synthetic images. A particular finding concerns centered Bradley thresholding:
 
 | Bradley configuration | Mean Dice on 60 synthetic images |
 |---|---:|
