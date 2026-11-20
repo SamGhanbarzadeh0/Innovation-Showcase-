@@ -1,0 +1,13 @@
+Original,Corrected,MatchedN,UnmatchedN,MeanDiceDifference,MedianDiceDifference,WorseCases,BetterCases,TiedCases
+Original_LocalMean_Zero,Corrected_LocalMean_Zero,60,0,0.00000000,0.00000000,0,0,60
+Original_LocalMean_Zero,Corrected_LocalMean_T012,60,0,0.50833274,0.50463208,0,60,0
+Original_Otsu,Corrected_Otsu,60,0,-0.00426252,-0.00292647,40,20,0
+Original_Wellner_LR,Corrected_Wellner_LR,60,0,0.00000000,0.00000000,0,0,60
+Original_Wellner_RL,Corrected_Wellner_RL,60,0,-0.02937776,-0.01055981,44,16,0
+Original_Wellner_UD,Corrected_Wellner_UD,60,0,0.00000000,0.00000000,0,0,60
+Original_Wellner_DU,Corrected_Wellner_DU,60,0,0.69565827,0.68395025,0,60,0
+Original_Bradley_Pre,Corrected_Bradley_Pre,60,0,0.05949972,0.16219664,28,32,0
+Original_Bradley_Post,Corrected_Bradley_Post,60,0,0.08166370,0.15992570,25,35,0
+Original_Bradley_Both,Corrected_Bradley_Both,60,0,-0.31302590,-0.20353937,42,1,17
+Corrected_Bradley_Both,Bradley_Both_T008,60,0,0.30898082,0.17234589,10,42,8
+Original_Bradley_Both,Bradley_Both_T008,60,0,-0.00404508,-0.00011418,30,13,17
