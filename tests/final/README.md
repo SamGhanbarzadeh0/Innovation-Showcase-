@@ -1,69 +1,48 @@
-# Stage 03 final MATLAB verification — single-run package
+# MATLAB validation and reproducible comparisons
 
-**Target runtime:** MATLAB R2024a with Image Processing Toolbox and Signal Processing Toolbox (the user's verified environment). No original code is deleted, and neither paper PDF is modified.
+The repository contains educational MATLAB implementations of global and local thresholding, directional neighborhood methods and integral-image calculations. The original source code remains identifiable by Git object SHA. The test suite compares those implementations with the revised functions and MathWorks toolbox references, using the same input pixels for each method.
 
-## Download and run
+## Reproduce the experiment
 
-Download the entire GitHub branch `fix/stage-03-final-evaluation-2026-11-20` as a ZIP. Extract it, choose the extracted top-level folder as MATLAB **Current Folder**, and execute exactly one command:
+Use MATLAB R2024a with Image Processing Toolbox; the signal examples additionally use Signal Processing Toolbox. From the extracted repository root, execute:
 
 ```matlab
 run('tests/final/run_final.m')
 ```
 
-The code automatically writes `validation_results/MATLAB_Final_Validation_YYYYMMDD_HHMMSS.zip`. **Upload this complete results ZIP** for final code and data review. Do not manually merge Pull Requests based only on a green MATLAB console message.
+The command runs the numerical regression checks, compares padding against MATLAB's `padarray`, evaluates the synthetic images and the installed MATLAB example images, then writes a ZIP in `validation_results/`. A failed numerical assertion or quality gate yields a nonzero CI result. Diagnostic output is still retained.
 
-## What the test really does
+The current 60-case experiment evaluates **22 configurations on 60 synthetic images**. The geometry-expanded comparison contains three earlier families and two additional families, crossed with three illumination patterns, two contrast/noise levels and two seeds. The `Bradley_Both_T008` configuration is labeled separately from the corrected default `T=0.20`. All synthetic inputs have known reference masks. The test does not select method parameters separately for each image.
 
-1. Re-runs the previously executed 72-group MATLAB regression suite.
-2. Executes additional differential edge-case checks against MATLAB's `padarray`: 3 image shapes × 3 directions × 5 padding modes × 3 padding widths, plus local means, Otsu extremes and DSP sanity.
-3. Constructs **36 deterministic, distinct single-polarity synthetic fixtures** (3 geometries × 3 illumination models × 2 contrast/noise levels × 2 independent noise seeds). Each has an exact dark-foreground ground-truth mask; method parameters are fixed before inspecting results.
-4. Evaluates **21 explicitly named methods/configurations**, including legacy source-based algorithms, repaired ones and toolbox `graythresh`/`imbinarize`/`adaptthresh` references. An exception is recorded in the CSV instead of aborting or being silently dropped.
-5. Computes confusion counts, Dice, IoU, sensitivity, specificity, balanced accuracy and runtime **for every attempted method on every case**. Paired method differences are computed on matched cases only; unmatched cases are counted.
-6. Saves all inputs, ground-truth masks and predicted masks for independent metric recomputation, plus readable comparison PNG figures and an optional unlabeled `printedtext.png` preview.
+## Source and measurement conventions
 
-## Exact provenance of original version
+The 14 original MATLAB files are preserved under `tests/legacy_snapshot/`, with exact object SHA values listed in [the source manifest](original_source_manifest.csv). The legacy local-mean, Wellner and Bradley functions are called from the original sources. The interactive Otsu script is represented by a numerical transcription of its threshold loop, with the original histogram routine called directly; this exception is documented so that it is not mistaken for a verbatim function execution.
 
-All **14 original MATLAB files**, corresponding exactly to the original audited Git commit `40240cd9d6aed4b6613697b535f84ad6fda80c29`, are preserved under `tests/legacy_snapshot/` using their original Git blob SHAs. The complete audit list is `original_source_manifest.csv`. Original scripts are still present for independent inspection, but interactive originals are **not executed interactively by the benchmark**. The legacy Otsu comparison numerically transcribes the threshold calculations in the original interactive `Project1_OtsuBinarization.m` (Steps 5–9) while invoking the **actual original** `ComputeHistogram.m`. All other baseline algorithm functions are called directly from the original source via isolated path switching. If a legacy function fails on a test, the error remains visible.
+For labeled synthetic images, a true pixel denotes **dark foreground**. The suite reports TP, FP, TN, FN, Dice, IoU, sensitivity, specificity, balanced accuracy and runtime. It also records method errors and counts successful paired comparisons before calculating original-versus-revised differences. The resulting tables and MAT arrays permit independent recomputation of the metrics.
 
-The MATLAB-toolbox adaptive baseline is `adaptthresh(I,0.5,'Statistic','mean','NeighborhoodSize',[17 17],'ForegroundPolarity','dark')` followed by `imbinarize`. These parameters and the original algorithm parameters are not claimed to be mutually optimized. Some original and corrected window definitions differ, as documented by their implementation; comparison is descriptive for these *configurations*, not a clean causal ablation of a single code edit.
+Eight MATLAB-installed images—`cameraman.tif`, `coins.png`, `rice.png`, `peppers.png`, `saturn.png`, `printedtext.png`, `pout.tif`, and `liftingbody.png`—are handled separately. Their largest dimension is scaled to 256 pixels for consistent runtime. They have **no trusted segmentation labels** in this test, so the figures show differences in output, not ground-truth accuracy.
 
-## Output interpretation
+## Output files
 
-| Result artifact | Contents |
+| File | Purpose |
 |---|---|
-| `status.txt` | Regression, extended checks, benchmark failures and functional release gate |
-| `regression_console.txt` | Existing MATLAB regression assertions |
-| `extended_edge_console.txt` | Differential testing against native MATLAB `padarray` |
-| `matched_metrics.csv` | 36 × 21 attempts, including all successes and errors |
-| `method_summary.csv` | Success/error counts, mean/median/min Dice, mean IoU and median runtime |
-| `paired_comparison.csv` | Original vs corrected, matched counts, better/worse/tied cases |
-| `matched_arrays.mat` | All synthetic inputs, truth masks and 21 predictions per case |
-| `case_light_1.png`, `case_light_2.png`, `case_light_3.png` | Fixed, non-cherry-picked comparisons |
-| `printedtext_comparison.png` | Optional qualitative-only image; no invented metrics |
-| `failures.txt`, `environment.txt` | Errors and reproducible environment details |
+| `status.txt` | Acceptance checks and missing or failed steps |
+| `regression_console.txt`, `extended_edge_console.txt` | Numerical and boundary-test output |
+| `matched_metrics.csv`, `method_summary.csv` | Per-image and aggregated synthetic measurements |
+| `paired_comparison.csv` | Differences between matched historical and revised methods |
+| `matched_arrays.mat` | Inputs, reference masks and predictions |
+| `case_light_*.png` | Fixed, preselected synthetic examples |
+| `native_image_manifest.csv` | Availability and dimensions of installed example images |
+| `native_method_results.csv`, `native_paired_disagreement.csv` | Unlabeled example-image measurements |
+| `native_*.png`, `native_image_arrays.mat` | Side-by-side masks and underlying arrays |
+| `failures.txt`, `environment.txt` | Error records and MATLAB environment |
 
-The release gate rejects **any corrected/toolbox method error**, any regression failure, an extended differential failure or failed figure production. Legacy errors are **reported but do not automatically fail repaired-code correctness**. Performance superiority is **not** a condition for an educational implementation to be correct. Output quality is reported separately and cannot be extrapolated to other images.
+The calibrated Bradley test also writes `bradley_quality_gate.csv`. The guard compares original centered Bradley, the corrected `T=0.20` default and the labeled `T=0.08` preset. It checks the 36 earlier and 24 additional synthetic fixtures separately. The tolerance of 0.025 mean Dice below the original is a project-specific non-inferiority criterion, not a claim of statistical equivalence on real images.
 
-## Scientific limitations and closure
+## Executed MATLAB results
 
-The original user-run Stage 03B benchmark passed 72 MATLAB test groups and 27/27 metric recomputations, but used one reference geometry under three conditions. This new suite diversifies synthetic geometry and prevents cherry-picking. It still **is not a blind real-document benchmark**: no real-image Dice claim is legitimate without human-verified reference labels. A final repository claim of broadly superior binarization requires external holdout data, such as images and labeled masks from the DIBCO series, with licenses checked by the user.
+The latest [GitHub Actions run](https://github.com/hesamghd/Innovation-Showcase-/actions/runs/44763150733) passed the numerical and performance guards. Across 60 synthetic cases, the calibrated Bradley preset achieved mean Dice 0.954239, compared with 0.958284 for the original and 0.645258 for the repaired default. The earlier failed run remains visible because it exposed a mistake in the guard's case indexing, which was corrected before the successful rerun.
 
-Only after reviewing the actual final MATLAB ZIP should this code-level audit be marked *closed*. PRs remain Draft until then. The correct final technical claim is **tested and documented educational implementations**, not flawless image segmentation.
+## Interpretation
 
-## MATLAB-shipped example-image checks (required in final CI)
-
-The final run now explicitly attempts **eight named MATLAB sample images**: `cameraman.tif`, `coins.png`, `rice.png`, `peppers.png`, `saturn.png`, `printedtext.png`, `pout.tif` and `liftingbody.png`. It records missing sample filenames rather than silently substituting synthetic data. A minimum of four actually installed images must be loaded and assessed for CI acceptance; all loaded examples are evaluated with fixed parameters and no per-image tuning.
-
-Images are converted to grayscale and `im2double`; their maximum side is scaled to 256 pixels (bilinear), with original and evaluated image dimensions recorded. Identical inputs are passed to old, corrected and MATLAB-toolbox methods. The collector writes `native_image_manifest.csv`, `native_method_results.csv`, `native_paired_disagreement.csv`, `native_image_arrays.mat`, and `native_*.png` comparison panels. It records foreground fractions, component counts, timing, errors and old-vs-new pixel disagreement. It does **not** report these descriptive measures as Dice, IoU or accuracy, because the MATLAB sample images do not include the required ground-truth masks.
-
-Failing corrected/toolbox methods or failed figure export on available images fail the CI gate; original source failures remain visible separately. These checks address a previously missing real-image evaluation, but do not constitute independent labeled document-binarization accuracy. Original MathWorks image files are accessed from the installed MATLAB environment and are not themselves committed into this repository.
-
-## Calibrated Bradley quality guard (Stage 03C)
-
-The prior completed MATLAB final audit is a **successful functional test, not a successful no-regression test**. Across its 36 synthetic ground-truth images, original centered Bradley achieved mean Dice **0.959523**, but the mathematically repaired centered function with the original sensitivity `T=0.20` achieved only **0.634746**. A passing script is not permission to replace the original research result with an inferior one.
-
-Stage 03C adds the explicitly named diagnostic configuration `Bradley_Both_T008` using `opts.Sensitivity=0.08` while retaining the bug-fixed local-mean/integral-image geometry. The sensitivity value was investigated **after examining the previous fixtures**, so geometry families 1-3 are exploratory/training-context evidence, not a blinded evaluation. Two more geometry families (4 and 5; 24 new test cases) are added for a separately reported post-selection stress check: **60 synthetic cases × 22 configurations**. No claim of universal image-processing superiority is justified.
-
-`bradley_quality_gate.csv` reports original vs repaired `T=0.20` vs calibrated `T=0.08` on 36 historical cases, 24 additional cases, and all cases. The gate requires: (a) calibrated mean Dice exceeds the regressed variant by at least 0.10 on both groups and (b) calibrated mean Dice is no more than 0.025 below original Bradley mean Dice on either group. These are finite synthetic acceptance thresholds, *not* a real-world performance certificate. The previous reported figures remain preserved in the older workflow artifact, with no rewriting of history. If any group fails, keep the PR in Draft and report the actual values instead of publishing a claim of improvement.
-
-For all eight MATLAB-installed example images, a new `Bradley_Both_T008` panel is evaluated alongside original and repaired centered Bradley, and the changed-pixel fraction is recorded. As these samples do not come with labeled segmentation masks, do not assign them Dice or accuracy. The Project4 demo explicitly labels the centered T=0.08 configuration; the default BradleyImage function remains T=0.20 for backwards-compatible, testable calls.
+The test establishes how these specific implementations and parameter settings behave on reproducible fixtures. It does not establish that one method is best for arbitrary images, nor does it provide clinical validation. Labeled external documents would be needed for broader claims. Review the numerical tables and example images before merging any stacked pull request.
