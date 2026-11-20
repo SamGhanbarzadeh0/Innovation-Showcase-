@@ -1,12 +1,13 @@
-# Stage 02 — MATLAB mathematical and computational verification
+# Mathematical review of the original MATLAB implementations
 
-**Audit date:** 2026-11-20. **Source baseline:** `40240cd9d6aed4b6613697b535f84ad6fda80c29` on `main`. **Scope:** all 14 tracked MATLAB files (including three byte-identical `PadArray.m` copies) in the pre-remediation tree. **Code changes:** none.
+**Review date:** 20 November 2026  
+**Source:** `main` at `40240cd9d6aed4b6613697b535f84ad6fda80c29`
 
-## Verification boundaries
+This review preceded any changes to the 14 original MATLAB files. It examines Otsu thresholding, local means, directional Wellner and Bradley methods, image padding, integral images and elementary signal demonstrations. Three directories contain byte-identical copies of `PadArray.m`. Those copies are treated as one implementation for mathematical discussion, while their individual paths remain listed below.
 
-This is source-level inspection with transparent mathematical counterexamples and independent Python/NumPy reference calculations. **MATLAB and Octave were unavailable**, so no statement below is a claim that the repository MATLAB scripts executed successfully or failed in a MATLAB runtime. The original source is unchanged; a future Stage 03 fix must be accompanied by MATLAB regression tests.
+The central question was whether each computation matched the algorithm it purported to implement. I distinguished errors that can be demonstrated by elementary counterexamples from cases dependent on MATLAB type semantics or unavailable runtime behavior. The work was a source inspection supported by independent numerical references; the original MATLAB scripts were **not executed in this stage**. Their later successful or unsuccessful execution is a separate event in the project history.
 
-## File-by-file audit
+## Source-level findings
 
 | Current tracked source (relative to repository) | Status and specific findings |
 |---|---|
@@ -25,7 +26,9 @@ This is source-level inspection with transparent mathematical counterexamples an
 | `.../Bradley Thresholding/Project4_BradleyThresholding.m` | **P1:** comments and final supertitle incorrectly say Wellner, although `BradleyImage` runs. Nine pad/direction combinations inherit Bradley problems. No automated assertions. |
 | `Signal Processing/Matlab/Chapter 1- Define Signal/Project1_CDSignals.m` | **P0 pedagogical problem:** discrete `Sin_Wave_n=sin(2*pi*5*n/10)=sin(pi*n)=0` for every integer n. **P1:** continuous impulse proxy of amplitude 100 for `|t|<=0.01` is not unit-area (ideal continuous integral 2; sampled Riemann approximation ~1.9 subject to floating-point endpoints). `sawtooth` requires Signal Processing Toolbox, `sinc` availability must be checked, and use of `stem` for dense continuous-time impulse samples should be documented as plotting choice, not exact Dirac representation. |
 
-## Independent reference test ledger (not MATLAB tests)
+## Independent numerical checks
+
+The following tests were run against mathematical reference implementations rather than against the MATLAB runtime. `PASS` denotes agreement within this limited reference calculation; it does not certify the original MATLAB file.
 
 | ID | Case | Observation |
 |---|---|---|
@@ -38,15 +41,12 @@ This is source-level inspection with transparent mathematical counterexamples an
 | REF-07 | All 14 MATLAB files | **NOT RUN** in MATLAB or Octave |
 | REF-08 | Otsu uint8 max=255 | **NOT RUN** in MATLAB; arithmetic semantics need MATLAB reference test |
 
-## Priorities and proposed acceptance gates for Stage 03
+## Interpretation and subsequent verification
 
-1. Verify and fix Otsu handling of uint8, uint16, floating intensity, all-black/all-white images and 0/255 extreme bins. Compare to `graythresh` and `imbinarize` under an explicitly stated threshold convention.
-2. Prove each neighborhood and padding rule with one 3x3 or 5x5 hand-checkable array; compare `PadArray` to `padarray` where appropriate and clarify semantics of 'Pre/Post/Both'.
-3. Rewrite Bradley rectangle bookkeeping so integral-image sums and window cardinality agree; ensure every output pixel is assigned for all nine options. Compare to a brute-force local mean reference (not just `adaptthresh`, whose algorithm may differ).
-4. Correct Wellner sample counts, direction mapping and short-width/height handling; test uniform and gradient images, direction reversals, and all padding styles.
-5. Correct plotting variable/labels and sampled-sine aliasing, and explicitly label the finite-width impulse approximation. Run MATLAB scripts with fixed deterministic test fixtures.
-6. Document MATLAB release/toolboxes, actual runtime pass/fail, reproducible fixtures and output checksums. Never record Python reference results as MATLAB execution.
+The clearest source-level defects concerned mismatched Bradley integral-image rectangle areas, incomplete Pre/Post output coverage, Wellner's inconsistent sample counts and scan-direction indexing, and a Nyquist-degenerate discrete sine demonstration. The histogram and padding routines also required explicit input-class and boundary tests before being treated as reliable.
 
-## Modification scope
+The follow-up MATLAB work was therefore specified to compare every window sum with a direct neighborhood calculation, exercise small and degenerate inputs, and retain original data types where meaningful. Otsu required a stated tie-breaking and intensity-bin convention; graphical scripts required distinct tests for numerical output and figure labeling. Successful array-shape assertions alone could not establish image-segmentation quality.
 
-Stage 02 adds only this audit document on a separate branch and draft pull request. No source code, binary documents, licenses, or Git history are changed. All Stage 03 code modifications require independent owner review and proof-by-tests.
+Subsequent branches introduced rewritten functions, MATLAB regression tests and controlled segmentation comparisons. Their results should be read alongside this source-level record, not retroactively attributed to Stage 02.
+
+This branch changes documentation only. The original MATLAB files, PDFs, Git history and default branch were left unchanged.
