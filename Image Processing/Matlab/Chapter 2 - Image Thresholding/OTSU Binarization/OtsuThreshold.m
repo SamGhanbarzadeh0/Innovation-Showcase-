@@ -17,11 +17,14 @@ variance(valid)=(muTotal*omega(valid)-mu(valid)).^2 ./ ...
 [peak,idx]=max(variance);
 thresholdLevel=idx-1; % Lowest-index tie rule
 if isa(I,'single') || isa(I,'double')
-    threshold=thresholdLevel/255;
+    % The histogram uses nearest-level quantization; classify using
+    % precisely the same bins to avoid boundary inconsistencies.
+    threshold=(thresholdLevel+0.5)/255;
+    BW=floor(double(I)*255+0.5)>thresholdLevel;
 else
     threshold=thresholdLevel;
+    BW=double(I)>thresholdLevel;
 end
-BW=double(I)>threshold;
 details=struct('histogram',H,'probability',prob, ...
     'levels',levels,'cumulativeProbability',omega, ...
     'betweenClassVariance',variance,'peakVariance',peak, ...
