@@ -1,39 +1,39 @@
 function HIST = ComputeHistogram(I)
-% ComputeHistogram Calculates the Histogram of Brightness Levels for a Grayscale
-% or Color Image. If the Image Is Grayscale, It Calculates a Single Histogram.
-% For Color Images, It Computes a Histogram for Each Color Channel.
-
-% step 1: Check If Image Is Grayscale or Color
+%COMPUTEHISTOGRAM Exact grayscale counts for uint8/uint16, or 256
+%   quantization levels for normalized floating-point images.
+%   RGB input returns a cell array with one histogram per channel.
+validateattributes(I,{'numeric','logical'},{'nonempty','real','nonsparse'},mfilename,'I');
+if ndims(I) > 3 || (ndims(I)==3 && size(I,3)~=3)
+    error('ComputeHistogram:Dimensions','Expected grayscale or three-channel RGB image.');
+end
 if ndims(I) == 2
-    % Step 1-2: Grayscale Image
-    L = max(I(:)) + 1; % Number of Brightness Levels
-    HIST = zeros(1, L); % Initialize Histogram Array
-    % step 1-3: Get Image Size
-    [Rows, Colms] = size(I);
-    % step 1-4: Count Brightness Levels for Grayscale
-    for i = 1:Rows
-        for j = 1:Colms
-            Temp = I(i, j);                                                 % Brightness Level at Pixel (i, j)
-            HIST(Temp + 1) = HIST(Temp + 1) + 1;                            % Increment Histogram Bin
-        end
-    end
+    HIST = oneHistogram(I);
 else
-    % step 1-5: Color Image
-    HIST = cell(1, 3);                                                      % Initialize Histogram for Three Channels (R, G, B)
-    for ch = 1:3
-        % step 1-6: Process Each Color Channel
-        channelData = I(:, :, ch);
-        L = max(channelData(:)) + 1;                                        % Number of Brightness Levels for Channel
-        HIST{ch} = zeros(1, L);                                             % Initialize Histogram Array for Channel
-        % step 1-7: Get Channel Size
-        [Rows, Colms] = size(channelData);
-        % step 1-8: Count Brightness Levels for Channel
-        for i = 1:Rows
-            for j = 1:Colms
-                Temp = channelData(i, j);                                   % Brightness Level at Pixel (i, j)
-                HIST{ch}(Temp + 1) = HIST{ch}(Temp + 1) + 1;                % Increment Histogram Bin
-            end
-        end
+    HIST = cell(1,3);
+    for ch=1:3
+        HIST{ch}=oneHistogram(I(:,:,ch));
     end
 end
+end
+
+function H = oneHistogram(A)
+if islogical(A)
+    levels = 2;
+    idx = double(A(:))+1;
+elseif isa(A,'uint8')
+    levels = 256;
+    idx = double(A(:))+1;
+elseif isa(A,'uint16')
+    levels = 65536;
+    idx = double(A(:))+1;
+elseif isa(A,'double') || isa(A,'single')
+    if any(~isfinite(A(:))) || any(A(:)<0) || any(A(:)>1)
+        error('ComputeHistogram:Range','Floating-point images must be finite and in [0,1].');
+    end
+    levels = 256;
+    idx = floor(double(A(:))*255+0.5)+1;
+else
+    error('ComputeHistogram:Class','Use logical, uint8, uint16, single or double images.');
+end
+H = accumarray(idx,1,[levels,1])';
 end
