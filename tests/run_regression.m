@@ -92,12 +92,13 @@ testCount=testCount+1;
 %% Bradley: constant images and direct neighborhood comparison
 I=reshape(mod(0:63,13),8,8)/12;
 dirs={'Pr','Po','Bo'}; types={'Rp','Sm','Cr'};
+styles={'Replicate','Symmetric','Circular'};
 for d=1:3
     for t=1:3
         opts=struct('Direction',dirs{d},'PadValue',types{t});
         BW=BradleyImage(I,opts);
         assert(isequal(size(BW),size(I)));
-        dir=directions{d}; style=padding{t};
+        dir=directions{d}; style=styles{t};
         % For an 8x8 input, neighborhood radius is exactly one pixel.
         J=PadArray(I,[1 1],dir,style);
         if d==3, win=3; else, win=2; end
