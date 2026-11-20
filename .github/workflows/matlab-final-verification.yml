@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - fix/stage-03-final-evaluation-2026-11-20
+      - fix/stage-03-quality-guard-2026-11-20
   workflow_dispatch:
 
 permissions:
@@ -34,7 +35,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: MATLAB-R2024a-final-validation
+          name: MATLAB-R2024a-quality-guard-validation
           path: validation_results/
           if-no-files-found: warn
           retention-days: 30
