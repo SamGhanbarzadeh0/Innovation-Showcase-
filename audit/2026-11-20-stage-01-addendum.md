@@ -21,3 +21,7 @@ GitHub account 2FA, recovery codes, passkeys, active sessions, token scopes and 
 ## Local security completion requirement
 
 Use a trusted local clone with all reachable refs, run a current history-aware scanner (for example Gitleaks), inspect Git-tracked PDF metadata/embedded files and `.DS_Store` strings locally, and keep any resulting finding report private. Any confirmed leaked secrets should be revoked and rotated before changes to Git history are considered. The current state is **reviewed with limitations**, not formally security-certified.
+
+## Owner disposition (2026-11-20)
+
+The repository owner has explicitly instructed that the two existing publication PDFs are to remain in the repository, and that no further PDF clean-up be included in the current GitHub professionalization workflow. The **requested action is closed by owner decision**. This is not a legal opinion or independent evidence of republication permission. The original documents, their Git objects and their history are preserved unchanged.
