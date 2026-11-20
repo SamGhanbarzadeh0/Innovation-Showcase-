@@ -33,8 +33,6 @@ REQUIRED = (
     "tests/run_regression.m", "tests/final/run_final.m",
     "tests/final/collect_final_validation.m", "tests/final/validate_builtin_images.m",
 )
-LINKED_DOCS = ("README.md", "docs/REPOSITORY_LAYOUT.md", "docs/OUTPUT_POLICY.md",
-               "tests/README.md", "tests/final/README.md")
 problems: list[str] = []
 checked = 0
 
@@ -96,7 +94,8 @@ verify(not any("validation_results" in Path(x).parts for x in tracked),
 verify(not any(x.endswith((".asv", ".autosave", ".m~", ".slxc")) for x in tracked),
        "MATLAB autosave or intermediate files were committed")
 
-for name in LINKED_DOCS:
+# Check every Markdown file, including individual project READMEs and audit reports.
+for name in sorted(path for path in tracked if path.lower().endswith(".md")):
     file = ROOT / name
     if not file.is_file():
         continue
