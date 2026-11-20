@@ -20,10 +20,21 @@ figure('Name','Bradley adaptive thresholding');
 for d=1:numel(directions)
     for t=1:numel(padTypes)
         opts=struct('Direction',directions{d},'PadValue',padTypes{t});
+        % Centered dark-document preset was calibrated on illustrative
+        % synthetic fixtures. The underlying function default remains 0.20.
+        if strcmp(directions{d},'Bo')
+            opts.Sensitivity=0.08;
+        end
         BW=BradleyImage(I,opts);
         subplot(3,3,(d-1)*3+t);
         imshowpair(I,BW,'montage');
-        title(sprintf('%s / %s',directionNames{d},padNames{t}));
+        title(sprintf('%s / %s (T=%.2f)',directionNames{d}, ...
+            padNames{t},sensitivityLabel(opts)));
     end
 end
-sgtitle('Bradley local-mean thresholding');
+sgtitle('Bradley local-mean thresholding: centered document preset T=0.08');
+
+function t=sensitivityLabel(opts)
+if isfield(opts,'Sensitivity'),t=opts.Sensitivity;
+else,t=0.20;end
+end
