@@ -1,6 +1,6 @@
 # Evaluation protocol for the MATLAB thresholding projects
 
-This document describes the **executed** comparison, not a proposed image-processing benchmark. The implementation is [`collect_final_validation.m`](../tests/final/collect_final_validation.m), invoked through [`run_final.m`](../tests/final/run_final.m). The record for the successfully tested `main` commit is [GitHub Actions run 44769293994](https://github.com/hesamghd/Innovation-Showcase-/actions/runs/44769293994).
+This document describes the **executed** comparison, not a proposed image-processing benchmark. The implementation is [`collect_final_validation.m`](../tests/final/collect_final_validation.m), invoked through [`run_final.m`](../tests/final/run_final.m). The record for the successfully tested `main` commit is [GitHub Actions run 44769293994](https://github.com/SamGhanbarzadeh0/Innovation-Showcase-/actions/runs/44769293994).
 
 ## Scientific question and unit of analysis
 
@@ -70,4 +70,4 @@ run('tests/final/run_final.m')
 
 The run writes its outputs to `validation_results/`, including `matched_metrics.csv`, `method_summary.csv`, `paired_comparison.csv`, `bradley_quality_gate.csv`, `matched_arrays.mat`, synthetic comparison figures and the native example-image comparisons. The [full output inventory](../tests/final/README.md) specifies the remaining filenames.
 
-For the measured figures and interpretation, see [Results and figure provenance](RESULTS_AND_FIGURES.md). The output ZIP can be retrieved from the Artifacts section of the [verified R2024a run](https://github.com/hesamghd/Innovation-Showcase-/actions/runs/44769293994), while it remains within GitHub's artifact retention period.
+For the measured figures and interpretation, see [Results and figure provenance](RESULTS_AND_FIGURES.md). The output ZIP can be retrieved from the Artifacts section of the [verified R2024a run](https://github.com/SamGhanbarzadeh0/Innovation-Showcase-/actions/runs/44769293994), while it remains within GitHub's artifact retention period.

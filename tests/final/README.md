@@ -41,7 +41,7 @@ The calibrated Bradley test also writes `bradley_quality_gate.csv`. The guard co
 
 ## Executed MATLAB results
 
-The latest [GitHub Actions run](https://github.com/hesamghd/Innovation-Showcase-/actions/runs/44763150733) passed the numerical and performance guards. Across 60 synthetic cases, the calibrated Bradley preset achieved mean Dice 0.954239, compared with 0.958284 for the original and 0.645258 for the repaired default. The earlier failed run remains visible because it exposed a mistake in the guard's case indexing, which was corrected before the successful rerun.
+The latest [GitHub Actions run](https://github.com/SamGhanbarzadeh0/Innovation-Showcase-/actions/runs/44763150733) passed the numerical and performance guards. Across 60 synthetic cases, the calibrated Bradley preset achieved mean Dice 0.954239, compared with 0.958284 for the original and 0.645258 for the repaired default. The earlier failed run remains visible because it exposed a mistake in the guard's case indexing, which was corrected before the successful rerun.
 
 ## Interpretation
 
