@@ -1,48 +1,29 @@
-# Stage 03 — MATLAB corrections and verification status
+# MATLAB corrections: numerical scope and validation history
 
-Date: 2026-11-20. Baseline: `40240cd9d6aed4b6613697b535f84ad6fda80c29` (unmodified `main`).
-This branch changes the MATLAB source but does not touch either PDF, any `.DS_Store`, existing history or license metadata.
+**Source baseline:** `40240cd9d6aed4b6613697b535f84ad6fda80c29`  
+**Initial correction branch:** `fix/stage-03-matlab-2026-11-20`
 
-## Correction log
+The first correction pass altered 14 existing MATLAB files and introduced `OtsuThreshold.m`, a callable implementation of two-class between-class variance maximization. The objective was to repair identifiable numerical errors while retaining the educational examples and the original repository history.
 
-- `ComputeHistogram.m`: avoid uint8/uint16 arithmetic saturation; count the complete nominal intensity range; define floating-point histogram quantization in [0,1]; support RGB channel histograms.
-- `OtsuThreshold.m` (new): expose a deterministic two-class between-class-variance thresholding function with a documented lowest-index tie convention. The displayed Otsu script now uses the same calculation, including matching quantization semantics for floating-point inputs.
-- `ImageMean.m`: use double-precision summed-area tables for padded local means, with dimensions and pre/post/both window sizes explicitly defined.
-- `PadArray.m` (three identical copies): preserve input class, make extension semantics explicit, support pad widths larger than the image, validate unsupported options, and use integer index maps.
-- `WellnerImage.m`: exclude the current pixel from S-neighbor reference windows, correct RL sample-count normalization and DU indexing, and avoid zero-width windows on small arrays.
-- `BradleyImage.m`: calculate local means from the *padded intensity image*, not a padded integral image; normalize by the actual number of samples; assign every output pixel under Pre/Post/Both.
-- `IntegralImage.m` and `IntegralImagePlus.m`: use two equivalent double-precision cumulative-sum identities.
-- `Project1_OtsuBinarization.m`, `Project2_PadArrayMeanBinarization.m`, `Project3_WellnerThresholding.m`, `Project4_BradleyThresholding.m`: align visualization scripts with corrected functions, validate user input and label displayed methods correctly.
-- `Project1_CDSignals.m`: avoid a discrete sinusoid sampled at its degenerate Nyquist phase; normalize the narrow pulse by its actual sampled area; change dense narrow-pulse stem to a continuous plot.
+## Changes to the calculations
 
-All 14 original MATLAB source files on `main` are updated on this branch. The method definitions preserve the educational aims but can change numerical outputs, especially for incorrect border cases. Previous figures should be re-generated; old outputs are not re-described as new experimentally verified results.
+- **Otsu:** histogram indices are calculated without native-integer saturation. Logical, 8-bit, 16-bit and normalized floating-point images have explicit binning rules. Quantized floating-point images are classified using the same bins used to estimate their threshold.
+- **Local mean:** `ImageMean.m` obtains neighborhood averages through a double-precision summed-area table. The distinction between one-sided and centered windows is explicit.
+- **Padding:** the three identical `PadArray.m` copies validate direction and padding type. Replication, circular extension and symmetric reflection use index maps that also handle padding wider than the source image.
+- **Wellner:** the directional neighborhood contains exactly the stated number of reference samples. Right-to-left and downward indexing were corrected, and narrow images no longer produce a zero-length reference window.
+- **Bradley:** sums are taken from a cumulative table of the **padded image**, with the correct number of pixels in each window. Output coverage includes boundary pixels. The corrected function initially retained the original sensitivity parameter of `0.20`.
+- **Integral images and demonstrations:** the cumulative-sum implementations were made explicit; the image scripts use consistently named methods, while the discrete sinusoid no longer degenerates at its chosen sample frequency. The finite-width impulse approximation is normalized by its sampled area.
 
-## Actual execution evidence
+These changes establish clearer computational definitions. They do not establish that the resulting segmentation is always closer to a reference mask.
 
-- **Independent Python/NumPy reference tests: 153 passed / 153 executed** on a deterministic seed (20261120). These test boundary-extension indexing, direct-versus-summed-area local means, Bradley windows on multiple dimensions, Wellner directions/boundaries, Otsu extreme-intensity cases and discrete DSP identities.
-- **MATLAB tests: NOT EXECUTED.** Neither MATLAB nor GNU Octave is installed in the current execution environment. The source-level MATLAB regression suite is `tests/run_regression.m`.
-- The Python reference tests are **independent algorithmic tests**, not execution of MATLAB source. Their success does not constitute proof of MATLAB syntax, toolbox availability, graphical behavior or bit-for-bit identical MATLAB output.
+## Sequence of validation
 
-## MATLAB acceptance command
+The initial review used 153 independent Python/NumPy reference checks. MATLAB was not available at that point, so no MATLAB pass was claimed. The subsequent owner-run MATLAB R2024a suite passed **69** regression groups, but its figures exposed a poorly specified synthetic example: bright and dark objects were combined under one-sided threshold conventions, and a zero-margin local mean produced near-equality artifacts.
 
-From the repository root with a supported MATLAB installation:
+The later 03B and final stages corrected the experimental design. In particular, a matched 36-case comparison revealed that default corrected Bradley with `T=0.20` had substantially lower synthetic Dice than the historical implementation. That finding was retained rather than hidden under the earlier passing regression tests. A distinct calibrated centered configuration and further validation were introduced in Stage 03C.
 
-```matlab
-run('tests/run_regression.m')
-```
+## How to reproduce
 
-Expected stdout **only if all checks pass**: `PASS: <N> MATLAB assertions/groups (all tests reached).`
-Do not claim the results were validated in MATLAB until the test command has actually executed.
+The historical numerical tests are available in `tests/run_regression.m`; the later, broader suite is described in `tests/final/README.md`. The original code remains accessible by its baseline Git SHA, and subsequently within `tests/legacy_snapshot/`.
 
-For graphical scripts, open each project folder and run its `Project*.m` file. Recommended reference fixtures: `coins.png`, `cameraman.tif`, `rice.png`, `peppers.png` and synthetic constant/gradient images. The scripts require Image Processing Toolbox functions; DSP visualization uses Signal Processing Toolbox functions such as `sawtooth`.
-
-## Exit criteria / unresolved
-
-- [x] Mathematical bug fixes and safe indexing changes committed to a separate branch.
-- [x] Exact-shape and edge-case regression test source added.
-- [x] 153/153 independent NumPy algorithm-reference checks passed.
-- [ ] MATLAB R2022a or newer script/runtime verification, including any toolbox/API compatibility failures.
-- [ ] Visual inspection of generated MATLAB figures and reproducible saved outputs from actual MATLAB execution.
-- [ ] Merge only after review and MATLAB execution; `main` should remain at the audited baseline in the meantime.
-
-Do not use this branch to imply scientific validation of clinical/biomedical data, since these are educational imaging and signal-processing examples rather than a tested medical application.
+The scripts require MATLAB and relevant MathWorks toolboxes for their image and signal demonstrations. These are educational implementations; neither the figures nor the tests constitute validation on clinical data or proof of general superiority in document binarization.
