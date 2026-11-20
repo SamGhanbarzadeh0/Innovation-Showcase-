@@ -1,32 +1,28 @@
-# Stage 03 final consolidation — methods, controls and release criteria
+# Reproducible comparison of the original and revised MATLAB code
 
-Date: 2026-11-20. The user requested one consolidated final correction pass following two separate MATLAB runs. The original programs remain attributed and preserved; no project history or reference PDF has been rewritten.
+**Established baseline:** `40240cd9d6aed4b6613697b535f84ad6fda80c29`  
+**Final comparison branch:** `fix/stage-03-final-evaluation-2026-11-20`
 
-## Prior empirical evidence
+The original thresholding scripts are interactive demonstrations. Several numerical corrections were subsequently necessary, but the first revised figures showed that mathematical consistency and useful segmentation were not interchangeable. A more informative test had to compare the old and revised implementations on identical pixels, retain failures, and examine quality independently of whether MATLAB completed without an exception.
 
-- Original Stage 03 MATLAB R2024a run: 69 test groups passed; the initial synthetic figures were unsuitable for demonstrating image-segmentation quality.
-- Revised Stage 03B MATLAB R2024a run: 72 regression groups passed. All 27 submitted predictions were independently reconciled against the supplied TP/FP/TN/FN and Dice/IoU metrics. Local mean achieved approximately 1.000, 1.000 and 0.998 Dice on the three prior controlled conditions, but the same underlying geometry was reused, and the text example had no ground truth.
-- Therefore the revised Stage 03B result **does not prove universal superiority** or a statistically independent improvement over the original project.
+## Source provenance
 
-## Final corrective approach
+The exact Git objects for all 14 original MATLAB files were retained under `tests/legacy_snapshot/`. Their paths and SHA values are recorded in `tests/final/original_source_manifest.csv`. The historical sources were not silently rewritten. Mean, Wellner and Bradley baseline functions are invoked from those copies. The original Otsu driver is interactive; its numerical threshold loop is transcribed for automated comparison while the original histogram function is called directly. This is a stated limitation of the baseline comparison.
 
-1. The exact pre-remediation algorithm source is pinned by Git object SHA inside `tests/legacy_snapshot` (14 files); metadata table in `tests/final/original_source_manifest.csv`.
-2. Previously corrected Otsu, Bradley, Wellner, mean thresholding, integral image, padding and DSP source files are kept on a separate feature branch; their numerical and interpretive contracts are independently checked.
-3. A single entrypoint `tests/final/run_final.m` runs the old regression suite, a new native-`padarray` differential test and 36 synthetic single-polarity test fixtures. No per-case tuning or model selection is permitted.
-4. Source-level path switching runs the **actual original function files** for mean, Wellner and Bradley; the original Otsu interactive script cannot be called as a function and is **transcribed for the original threshold loop only**, using the unmodified original `ComputeHistogram.m`. This distinction is disclosed.
-5. MATLAB toolbox methods are included, but sensitivity/window definitions are not asserted to be identical or optimally tuned between methods.
-6. Every attempted method/case combination must appear in the CSV. Runtime errors retain their error ID, missing performance metrics are NaN and are excluded only transparently (with unmatched counts).
-7. Primary code-level PASS criteria: all regression assertions pass, all extended edge checks pass, no corrected or toolbox algorithm crashes, and the predefined figures export. Legacy failure is evidence of an original bug, not a reason to falsely fail the repaired functions.
-8. Primary scientific interpretation: describe per-condition error modes, the full distribution of Dice/IoU, and paired old-versus-new effects. No sweeping performance claims on arbitrary imagery.
-9. Final code delivery is **not yet MATLAB-executed** until the owner runs the one-command suite; no PR is merged before results are reviewed.
+## Evaluation design and observed runs
 
-## Evidence gap for quantitative generalization
+The initial consolidated suite compared **21 configurations on 36 deterministic synthetic images**: three object geometries, three illumination patterns, two contrast/noise settings and two independent noise realizations. Every input has a known dark-foreground mask. A separate set of eight MATLAB-installed image examples was processed with fixed parameters; these natural and document-like images have no accompanying trusted segmentation masks in this workflow.
 
-The benchmark contains 36 deterministic synthetics and their explicit masks, spanning 3 geometric families, 3 illumination profiles, 2 contrast/noise settings and 2 noise realizations. These are deliberately varied but not equivalent to 36 independently collected real documents. Future generalization requires a labeled external benchmark and a held-out protocol. The current source tree includes no authenticated labeled real-document dataset, so a fabricated real-world accuracy number would be unacceptable.
+Confusion counts, Dice, IoU, sensitivity, specificity, balanced accuracy, runtime and paired differences are exported for every synthetic attempt. Errors remain in the output tables. The corresponding [MATLAB R2024a workflow](https://github.com/hesamghd/Innovation-Showcase-/actions/runs/44758952636) completed successfully, including the eight installed sample images.
 
-## Account/project preservation
+Inspection of those results exposed a meaningful regression: centered Bradley with its corrected window geometry but `T=0.20` had mean synthetic Dice **0.634746**, compared with **0.959523** for the original implementation. The passing numerical suite did not justify describing the revised Bradley result as an improvement.
 
-- Default `main` remains at `40240cd9d6aed4b6613697b535f84ad6fda80c29`.
-- Historical project files and both PDF references remain as originally committed.
-- This phase adds tests, an explicit original-source snapshot, documentation and reproducibility gates only.
-- Existing earlier Draft PRs remain unmerged; a separate final PR will be reviewed before any consolidation.
+The subsequent Stage 03C review retained the repaired computation but introduced an explicitly labeled centered `T=0.08` preset and a non-inferiority check. The expanded [R2024a run](https://github.com/hesamghd/Innovation-Showcase-/actions/runs/44763150733) assessed 22 configurations across 60 synthetic fixtures and eight unlabeled MATLAB samples. Its functional tests passed, and the calibrated centered Bradley reached **0.954239** mean Dice across the 60 fixtures, against **0.958284** for the original. The fixed default `T=0.20` remained available for reproducible comparison.
+
+## Interpretation
+
+The corrected source is numerically better specified, while the centered Bradley preset substantially reduces the performance loss introduced by the earlier default. The calibrated configuration has not demonstrated overall superiority to the historical method. The new fixture families remain synthetic; qualitative agreement on MATLAB examples is not evidence of labeled real-image accuracy.
+
+The project can reasonably be described as a reproducible set of educational image-processing implementations with documented algorithmic choices, tested boundary conditions and preserved source history. It cannot be presented as universally optimal document binarization or validated medical-image analysis.
+
+Neither the original PDFs nor the default branch were changed by this documentation review. A merge requires review of the stacked changes and the actual test artifacts, rather than reliance on a green CI badge alone.
