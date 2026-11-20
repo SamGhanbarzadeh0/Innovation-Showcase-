@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - chore/stage-05-repository-hygiene-2026-11-20
   pull_request:
     branches: [main]
   workflow_dispatch:
