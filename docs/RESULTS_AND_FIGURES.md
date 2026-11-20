@@ -4,7 +4,7 @@
 **Executed environment:** MATLAB R2024a, [GitHub Actions run 44769293994](https://github.com/hesamghd/Innovation-Showcase-/actions/runs/44769293994).  
 **Primary source files:** `method_summary.csv`, `paired_comparison.csv`, `matched_metrics.csv`, `bradley_quality_gate.csv`, `matched_arrays.mat`, and the generated PNG panels in the workflow's `MATLAB-R2024a-quality-guard-validation` artifact.
 
-I checked these data against the stored run output, rather than copying scores from a screenshot. The artifact records 60 synthetic cases and 22 method configurations, all 1,320 attempts with a successful execution status. The numerical check reported 72 regression groups and 245 edge-case assertions passing. It also processed all eight installed MATLAB example images. These are **execution and synthetic-benchmark results**, not claims of general real-image accuracy.
+I checked these data against the stored run output, rather than copying scores from a screenshot. The [permanent summary tables](results/README.md) are byte-identical to the three small CSV files in the completed workflow ZIP, as verified by their Git blob SHA values. The artifact records 60 synthetic cases and 22 method configurations, all 1,320 attempts with a successful execution status. The numerical check reported 72 regression groups and 245 edge-case assertions passing. It also processed all eight installed MATLAB example images. These are **execution and synthetic-benchmark results**, not claims of general real-image accuracy.
 
 ![Bradley centered mean Dice on the 60 synthetic reference masks](figures/bradley_synthetic_dice.svg)
 
