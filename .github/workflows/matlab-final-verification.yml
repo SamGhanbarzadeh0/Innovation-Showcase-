@@ -1,0 +1,40 @@
+name: MATLAB Final Verification
+
+on:
+  push:
+    branches:
+      - fix/stage-03-final-evaluation-2026-11-20
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matlab-validation:
+    name: R2024a numerical and matched-comparison audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out audit branch
+        uses: actions/checkout@v4
+
+      - name: Install MATLAB R2024a and required toolboxes
+        uses: matlab-actions/setup-matlab@v3
+        with:
+          release: R2024a
+          products: Image_Processing_Toolbox Signal_Processing_Toolbox
+          cache: true
+
+      - name: Run original versus corrected MATLAB evaluation
+        uses: matlab-actions/run-command@v3
+        with:
+          command: run('tests/final/run_final.m')
+
+      - name: Upload all benchmark logs, arrays and figures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: MATLAB-R2024a-final-validation
+          path: validation_results/
+          if-no-files-found: warn
+          retention-days: 30
