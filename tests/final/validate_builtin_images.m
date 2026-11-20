@@ -15,8 +15,8 @@ names={'Original_Otsu','Corrected_Otsu','Toolbox_Otsu', ...
     'Corrected_LocalMean_T012','Toolbox_Adaptive', ...
     'Original_Wellner_LR','Corrected_Wellner_LR', ...
     'Original_Wellner_UD','Corrected_Wellner_UD', ...
-    'Original_Bradley_Both','Corrected_Bradley_Both'};
-pairIdx=[1 2;4 5;4 6;8 9;10 11;12 13];
+    'Original_Bradley_Both','Corrected_Bradley_Both','Bradley_Both_T008'};
+pairIdx=[1 2;4 5;4 6;8 9;10 11;12 13;13 14;12 14];
 nCandidates=numel(candidates);nMethods=numel(names);
 inputData=cell(nCandidates,1);
 resultMasks=cell(nCandidates,nMethods);
@@ -136,12 +136,12 @@ summary.passed=found>=summary.minRequired && ...
 end
 
 function renderNative(I,masks,names,imageName,target)
-selected=[1 2 3 4 5 6 7 8 9 12 13];
+selected=[1 2 3 4 5 6 7 8 9 12 13 14];
 f=figure('Visible','off','Color','white','Position',[80 80 1500 1080]);
-subplot(3,4,1);imshow(I);title(['Original: ' imageName],'Interpreter','none');
+subplot(4,4,1);imshow(I);title(['Original: ' imageName],'Interpreter','none');
 for k=1:numel(selected)
     id=selected(k);
-    subplot(3,4,k+1);
+    subplot(4,4,k+1);
     mask=masks{id};
     if isempty(mask)
         imshow(ones(size(I)));title([names{id} ' | ERROR'], ...
