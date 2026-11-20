@@ -1,0 +1,24 @@
+name: Repository structure
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  file-layout:
+    name: Verify source archive and project links
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Check repository structure
+        run: python3 tools/check_repository_layout.py
