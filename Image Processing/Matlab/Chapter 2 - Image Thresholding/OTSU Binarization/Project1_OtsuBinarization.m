@@ -17,25 +17,15 @@ I=imread(images{choice});
 if size(I,3)==3
     I=rgb2gray(I);
 end
-H=ComputeHistogram(I);
-p=double(H)/sum(H);
-L=numel(H);
-levels=(0:L-1)';
-omega=cumsum(p(:));
-mu=cumsum(levels.*p(:));
-totalMean=mu(end);
-between=zeros(L,1);
-valid=(omega>0 & omega<1);
-between(valid)=(totalMean*omega(valid)-mu(valid)).^2 ./ ...
-    (omega(valid).*(1-omega(valid)));
-[peak,index]=max(between);
-thresholdIndex=index-1; % Class 0 includes level <= thresholdIndex.
-if isa(I,'single') || isa(I,'double')
-    threshold=thresholdIndex/255;
-else
-    threshold=thresholdIndex;
-end
-BW=double(I)>threshold; % Class 1 is strictly above the threshold.
+[BW,threshold,result]=OtsuThreshold(I);
+H=result.histogram;
+p=result.probability;
+levels=result.levels;
+omega=result.cumulativeProbability;
+between=result.betweenClassVariance;
+peak=result.peakVariance;
+thresholdIndex=result.thresholdLevel;
+L=numel(levels);
 
 figure('Name','Otsu thresholding');
 subplot(2,3,1); imshow(I); title('Grayscale image');
