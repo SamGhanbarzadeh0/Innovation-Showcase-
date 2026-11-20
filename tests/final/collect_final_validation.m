@@ -487,15 +487,20 @@ end
 function q=BradleyQualityGate(T,names,out)
 % Historical geometry families 1-3 were seen while selecting T=0.08.
 % Families 4-5 are additional fixture geometries, still synthetic.
-idxOld=strcmp(names,'Original_Bradley_Both');
-idxFixed=strcmp(names,'Corrected_Bradley_Both');
-idxNew=strcmp(names,'Bradley_Both_T008');
-if ~any(idxOld)||~any(idxFixed)||~any(idxNew)
-    error('Final:QualityColumns','Bradley comparison methods missing.');
+% Filter rows of the metrics table, NOT methodNames indices.
+% The previous version incorrectly selected only one CaseID=1 row.
+idxOld=strcmp(T.Method,'Original_Bradley_Both');
+idxFixed=strcmp(T.Method,'Corrected_Bradley_Both');
+idxNew=strcmp(T.Method,'Bradley_Both_T008');
+if nnz(idxOld)~=60 || nnz(idxFixed)~=60 || nnz(idxNew)~=60
+    error('Final:QualityColumns', ...
+        'Expected 60 matched rows for each Bradley comparison variant.');
 end
 old=T.Dice(idxOld); fixed=T.Dice(idxFixed);cal=T.Dice(idxNew);
 caseOld=T.CaseID(idxOld);caseNew=T.CaseID(idxNew);
-assert(isequal(caseOld,caseNew));
+caseFixed=T.CaseID(idxFixed);
+assert(isequal(caseOld,caseNew) && isequal(caseOld,caseFixed), ...
+    'Final:CaseAlignment','The Bradley comparison cases are not aligned.');
 valid=isfinite(old)&isfinite(fixed)&isfinite(cal);
 historic=T.Geometry(idxNew)<=3; extra=T.Geometry(idxNew)>=4;
 q.passed=all(valid) && sum(extra)==24 && sum(historic)==36;
