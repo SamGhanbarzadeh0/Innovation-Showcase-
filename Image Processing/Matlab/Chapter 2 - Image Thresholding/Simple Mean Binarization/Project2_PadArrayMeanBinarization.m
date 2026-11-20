@@ -18,13 +18,13 @@ padding={'Replicate','Symmetric','Circular'};
 figure('Name','Local mean thresholding');
 for d=1:numel(directions)
     for t=1:numel(padding)
-        padded=PadArray(I,radius,directions{d},padding{t});
-        localMean=ImageMean(padded,radius(1),radius(2),directions{d});
+        % Fixed, documented contrast margin prevents equality speckle.
+        [binary,localMean]=LocalMeanThreshold(I,radius, ...
+            directions{d},padding{t},0.12);
         assert(isequal(size(localMean),size(I)),'Incorrect local mean dimensions.');
-        binary=I>=localMean;
         subplot(3,3,(d-1)*3+t);
         imshow(binary);
         title(sprintf('%s / %s',directions{d},padding{t}));
     end
 end
-sgtitle('Local mean binarization with boundary extension');
+sgtitle('Local mean binarization (12% contrast margin)');
