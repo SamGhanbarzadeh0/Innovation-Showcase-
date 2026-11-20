@@ -4,7 +4,7 @@ These controls are **not activated by this Markdown file**. They require a repos
 
 ## A. Protect the default branch: Innovation-Showcase-
 
-1. Open [repository Rulesets settings](https://github.com/hesamghd/Innovation-Showcase-/settings/rules).
+1. Open [repository Rulesets settings](https://github.com/SamGhanbarzadeh0/Innovation-Showcase-/settings/rules).
 2. Choose **New ruleset → New branch ruleset**; give it a clear name such as `Protect main and require CI`.
 3. Target only `main` and set enforcement to **Active** after confirming that the new workflows have passed on the Stage 07 PR.
 4. Disallow branch deletion and force pushes. Require updates to reach `main` through a pull request.
@@ -16,7 +16,7 @@ The MATLAB check is present on every PR under the revised workflow, including do
 
 ## B. Protect Machine_Learning
 
-Open [its repository Rulesets settings](https://github.com/hesamghd/Machine_Learning/settings/rules). Apply equivalent protection for `main`: disallow deletion and force pushes, and require pull requests with an achievable approval count. **Do not require a non-existent CI job**. That repository currently has no executable model and no workflow.
+Open [its repository Rulesets settings](https://github.com/SamGhanbarzadeh0/Machine_Learning/settings/rules). Apply equivalent protection for `main`: disallow deletion and force pushes, and require pull requests with an achievable approval count. **Do not require a non-existent CI job**. That repository currently has no executable model and no workflow.
 
 ## C. Set account and repository security defaults
 

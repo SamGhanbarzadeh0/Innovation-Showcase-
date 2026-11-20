@@ -32,7 +32,7 @@ The original 14 MATLAB source files are preserved under [`tests/legacy_snapshot/
 
 ## Results and interpretation
 
-The [MATLAB R2024a run on the published source](https://github.com/hesamghd/Innovation-Showcase-/actions/runs/44769293994) passed the regression and boundary tests and evaluated 22 method configurations on 60 synthetic images. A particular finding concerns centered Bradley thresholding:
+The [MATLAB R2024a run on the published source](https://github.com/SamGhanbarzadeh0/Innovation-Showcase-/actions/runs/44769293994) passed the regression and boundary tests and evaluated 22 method configurations on 60 synthetic images. A particular finding concerns centered Bradley thresholding:
 
 | Bradley configuration | Mean Dice on 60 synthetic images |
 |---|---:|
