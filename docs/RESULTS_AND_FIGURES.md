@@ -6,6 +6,10 @@
 
 I checked these data against the stored run output, rather than copying scores from a screenshot. The artifact records 60 synthetic cases and 22 method configurations, all 1,320 attempts with a successful execution status. The numerical check reported 72 regression groups and 245 edge-case assertions passing. It also processed all eight installed MATLAB example images. These are **execution and synthetic-benchmark results**, not claims of general real-image accuracy.
 
+![Bradley centered mean Dice on the 60 synthetic reference masks](figures/bradley_synthetic_dice.svg)
+
+The displayed SVG is a plot of values in `bradley_quality_gate.csv`, not a rendered MATLAB segmentation mask. The exact masks and comparison PNGs remain available through the workflow artifact.
+
 ## Synthetic segmentation results
 
 Scores below are the **unweighted mean Dice across the same 60 labeled synthetic cases**. Each method has 60 successful cases and zero runtime errors; more decimal places than shown would not imply greater generalizability.
