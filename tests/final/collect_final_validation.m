@@ -153,6 +153,10 @@ for p=1:size(pairs,1)
 end
 fclose(fid);
 
+% A quality guard is separate from mathematical correctness.
+% The sensitivity=0.08 preset was selected after reading historical 36-case
+% results. Those original fixtures are exploratory, not blinded test data.
+quality=BradleyQualityGate(T,methodNames,out);
 % Save every fixture and mask: future reviewers can independently
 % recompute each reported TP/FP/TN/FN value and every quality metric.
 save(fullfile(out,'matched_arrays.mat'), ...
@@ -235,15 +239,16 @@ status=sprintf(['Regression assertions: %s\n' ...
     'MATLAB example comparison figures: %d\n' ...
     'MATLAB example validation gate: %s\n' ...
     'Matched legacy-vs-corrected comparisons: %d\n' ...
+    'Calibrated Bradley quality guard: %s\n' ...
     'Release-gate decision: %s\n'], ...
     yesno(testPassed),nCases,height(T),yesno(extendedPassed), ...
     nErr,nOriginalErr,nCorrectedErr, ...
     yesno(figuresOK),yesno(realFigureOK), ...
     native.found,native.missing,native.correctedErrors, ...
     native.legacyErrors,native.figures,yesno(native.passed), ...
-    size(pairs,1), ...
+    size(pairs,1),yesno(quality.passed), ...
     releaseGate(testPassed && extendedPassed,nCorrectedErr, ...
-        figuresOK && native.passed));
+        figuresOK && native.passed && quality.passed));
 status=[status sprintf(['Method ranking is descriptive for these synthetic fixtures.\n' ...
     'Do not claim publication-grade superiority or clinical validation.\n' ...
     'Failures in ORIGINAL functions are retained as evidence, not suppressed.\n' ...
@@ -254,7 +259,7 @@ outputZip=fullfile(parent,['MATLAB_Final_Validation_' stamp '.zip']);
 zip(outputZip,{['final_' stamp]},parent);
 fprintf('\n%s\nZIP: %s\n',status,outputZip);
 % Nonzero exit for CI while preserving diagnostic files and the ZIP.
-if ~testPassed || ~extendedPassed || nCorrectedErr>0 || ~figuresOK || ~native.passed
+if ~testPassed || ~extendedPassed || nCorrectedErr>0 || ~figuresOK || ~native.passed || ~quality.passed
     error('Final:QualityGate','MATLAB functional validation failed; inspect the output ZIP.');
 end
 end
@@ -476,6 +481,43 @@ end
 
 function status=yesno(pass)
 if pass,status='PASS';else,status='FAIL / NOT COMPLETED';end
+end
+
+
+function q=BradleyQualityGate(T,names,out)
+% Historical geometry families 1-3 were seen while selecting T=0.08.
+% Families 4-5 are additional fixture geometries, still synthetic.
+idxOld=strcmp(names,'Original_Bradley_Both');
+idxFixed=strcmp(names,'Corrected_Bradley_Both');
+idxNew=strcmp(names,'Bradley_Both_T008');
+if ~any(idxOld)||~any(idxFixed)||~any(idxNew)
+    error('Final:QualityColumns','Bradley comparison methods missing.');
+end
+old=T.Dice(idxOld); fixed=T.Dice(idxFixed);cal=T.Dice(idxNew);
+caseOld=T.CaseID(idxOld);caseNew=T.CaseID(idxNew);
+assert(isequal(caseOld,caseNew));
+valid=isfinite(old)&isfinite(fixed)&isfinite(cal);
+historic=T.Geometry(idxNew)<=3; extra=T.Geometry(idxNew)>=4;
+q.passed=all(valid) && sum(extra)==24 && sum(historic)==36;
+if q.passed
+    % Descriptive NON-INFERIORITY tolerance on both synthetic groups.
+    % Never claim superiority over real-world imagery from this gate.
+    q.passed=mean(cal(historic))>=mean(old(historic))-0.025 && ...
+        mean(cal(extra))>=mean(old(extra))-0.025 && ...
+        mean(cal(historic))>mean(fixed(historic))+0.10 && ...
+        mean(cal(extra))>mean(fixed(extra))+0.10;
+end
+fid=fopen(fullfile(out,'bradley_quality_gate.csv'),'w');
+fprintf(fid,'Group,N,OriginalMeanDice,CorrectedT020MeanDice,CalibratedT008MeanDice,CalibratedMinDice\n');
+groups={historic,extra,true(size(historic))};
+labels={'Historical_Geom1to3','Additional_Geom4to5','All'};
+for k=1:3
+    subset=groups{k};
+    fprintf(fid,'%s,%d,%.8f,%.8f,%.8f,%.8f\n', ...
+        labels{k},sum(subset),mean(old(subset)), ...
+        mean(fixed(subset)),mean(cal(subset)),min(cal(subset)));
+end
+fclose(fid);
 end
 
 function gate=releaseGate(regressionOK,nCorrectedErrors,figuresOK)
