@@ -46,6 +46,6 @@ For a valid comparison, keep input pixels, boundary rule and sensitivity fixed a
 
 ## Findings and limits
 
-The [MATLAB comparison](../../../../docs/EXPERIMENT_PROTOCOL.md) retains the original and corrected functions separately for LR, RL, UD and DU. In the 60-image synthetic benchmark, the corrected DU implementation had mean Dice approximately `0.743`, compared with approximately `0.040` for its original counterpart. Those measurements indicate a substantial change on that test design; they do **not** prove the corrected directional method is preferable to all other local thresholding algorithms.
+The [MATLAB comparison](../../../../docs/EXPERIMENT_PROTOCOL.md) retains the original and corrected functions separately for LR, RL, UD and DU. In the earlier **36-image synthetic comparison**, the corrected DU implementation had mean Dice approximately `0.743`, compared with approximately `0.040` for its original counterpart. Those measurements indicate a substantial change on that test design; they do **not** prove the corrected directional method is preferable to all other local thresholding algorithms.
 
 Directional methods can respond differently to the same stroke depending on orientation and local brightness. The eight installed MATLAB example images were therefore used for visual inspection only, without fabricated Dice/IoU values. A general claim about text binarization would require independently labeled real-document images and a fixed method-selection protocol.
