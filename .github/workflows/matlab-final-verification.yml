@@ -2,25 +2,22 @@ name: MATLAB Final Verification
 
 on:
   push:
-    branches:
-      - main
-      - fix/stage-03-final-evaluation-2026-11-20
-      - fix/stage-03-quality-guard-2026-11-20
+    branches: [main]
     paths:
       - '**/*.m'
       - 'tests/final/original_source_manifest.csv'
       - '.github/workflows/matlab-final-verification.yml'
   pull_request:
-    branches:
-      - main
-    paths:
-      - '**/*.m'
-      - 'tests/final/original_source_manifest.csv'
-      - '.github/workflows/matlab-final-verification.yml'
+    branches: [main]
   workflow_dispatch:
 
+# No write access or credentialed pushes from an untrusted pull request.
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   matlab-validation:
@@ -28,26 +25,67 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Check out audit branch
-        uses: actions/checkout@v4
+      - name: Check out source without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Determine whether MATLAB must run
+        id: scope
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          import subprocess
+
+          event = os.environ["EVENT_NAME"]
+          if event == "pull_request":
+              base = os.environ.get("PR_BASE_SHA", "")
+              if re.fullmatch(r"[0-9a-f]{40}", base) is None:
+                  raise SystemExit("Cannot verify the pull-request base SHA")
+              changed = subprocess.check_output(
+                  ["git", "diff", "--name-only", "--diff-filter=ACMRD",
+                   "-z", base, "HEAD"]
+              ).decode("utf-8").split("\0")
+              relevant = any(
+                  p.endswith(".m")
+                  or p == "tests/final/original_source_manifest.csv"
+                  or p == ".github/workflows/matlab-final-verification.yml"
+                  for p in changed if p
+              )
+          else:
+              # The push event is path-filtered; manual runs always execute.
+              relevant = True
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"needs_matlab={'true' if relevant else 'false'}\n")
+          print("MATLAB evaluation:", "required" if relevant else "not needed for this documentation-only PR")
+          PY
 
       - name: Install MATLAB R2024a and required toolboxes
-        uses: matlab-actions/setup-matlab@v3
+        if: steps.scope.outputs.needs_matlab == 'true'
+        uses: matlab-actions/setup-matlab@f9e43010f1ae678f7cfa0542fe2a4f60f7d1ad8d # v3
         with:
           release: R2024a
           products: Image_Processing_Toolbox Signal_Processing_Toolbox
           cache: true
 
       - name: Run original versus corrected MATLAB evaluation
-        uses: matlab-actions/run-command@v3
+        if: steps.scope.outputs.needs_matlab == 'true'
+        uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3
         with:
           command: run('tests/final/run_final.m')
 
-      - name: Upload all benchmark logs, arrays and figures
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Upload benchmark logs, arrays and figures
+        if: always() && steps.scope.outputs.needs_matlab == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: MATLAB-R2024a-quality-guard-validation
           path: validation_results/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 30
