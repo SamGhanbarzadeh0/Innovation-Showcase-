@@ -27,8 +27,9 @@ n = -10:10;    % Discrete Time
 U_t = t >= 0;
 
 % Step 3-2: Continuous Impulse Signal (Modeled as Small Pulse)
-Delta_t = (t >= -0.01) & (t <= 0.01);
-Delta_t = Delta_t * 100;
+% A finite-width approximation normalized to unit discrete-time area.
+Delta_t = double(abs(t) <= 0.01);
+Delta_t = Delta_t / (sum(Delta_t) * (t(2)-t(1)));
 
 % Step 3-3: Rectangular Pulse Signal
 Pulse_t = (t >= -0.5) & (t <= 0.5);
@@ -61,17 +62,18 @@ Delta_n = n == 0;
 Pulse_n = (n >= -5) & (n <= 5); 
 
 % Step 4-4: Discrete Sinusoidal Signal
-Sin_Wave_n = sin(2 * pi * F * (n / 10));
+Fs = 10; F_discrete = 2;  % 2 Hz, strictly below the 5 Hz Nyquist limit
+Sin_Wave_n = sin(2 * pi * F_discrete * n / Fs);
 
 % Step 4-5: Discrete Exponential Signal
 alpha = -0.05;
 Exp_Wave_n = exp(alpha * n);
 
 % Step 4-6: Discrete Triangular Signal
-Triangular_Wave_n = sawtooth(2 * pi * F * (n / 10), 0.5);
+Triangular_Wave_n = sawtooth(2 * pi * F_discrete * n / Fs, 0.5);
 
 % Step 4-7: Discrete Sawtooth Signal
-Sawtooth_Wave_n = sawtooth(2 * pi * F * (n / 10));
+Sawtooth_Wave_n = sawtooth(2 * pi * F_discrete * n / Fs);
 
 % Step 4-8: Discrete Sinc Signal
 Sinc_Wave_n = sinc(n / 10);
@@ -85,8 +87,8 @@ title('Continuous Step Signal');
 xlabel('Time'); ylabel('Amplitude');
 
 subplot(4, 4, 2);
-stem(t, Delta_t, 'Color', [0.47, 0.67, 0.19]); 
-title('Continuous Impulse Signal');
+plot(t, Delta_t, 'Color', [0.47, 0.67, 0.19]); 
+title('Unit-area narrow-pulse approximation');
 xlabel('Time'); ylabel('Amplitude');
 
 subplot(4, 4, 3);
