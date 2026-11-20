@@ -32,6 +32,12 @@ The pinned upstream GitHub action commits in this review are:
 
 These SHAs identify the action source at the time checked; they do not eliminate all upstream or runtime supply-chain risk.
 
+## Limited current-tree plaintext credential-pattern review
+
+As a separate read-only check, 72 text files from the pinned `Innovation-Showcase-` `main` baseline and 9 text files from the subsequent `Machine_Learning` `main` tree were fetched individually by Git blob SHA. All 81 reads succeeded. The inspection covered recognizable GitHub token prefixes, AWS access-key identifiers, standard private-key headers, Slack token patterns, Google API-key formats and long literal secret/password/API-key assignments. **No match was detected** by these six pattern families.
+
+This is a narrowly scoped pattern search, not an enterprise-grade secret scanner: it did not inspect either PDF as a binary, scan unreachable history, decode embedded or encrypted values, exhaust all credential formats, or read GitHub's restricted secret-scanning alerts. No evidence of a credential leak was found within these criteria; that cannot establish the absence of all sensitive data.
+
 ## Owner action: protect main
 
 The connected app cannot create or edit enforced rulesets. The owner must use GitHub's **Settings → Rules → Rulesets** in each repository. Rulesets are supported for public user-owned repositories, including GitHub Free. A suitable conservative setup is documented in [OWNER_SECURITY_SETTINGS.md](OWNER_SECURITY_SETTINGS.md).
