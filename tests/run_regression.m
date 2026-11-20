@@ -135,4 +135,49 @@ assert(isequal(size(WellnerImage(ones(2,1),...
     struct('Method','DU','PadValue','Cr'))),[2 1]));
 testCount=testCount+1;
 
+%% Directional Wellner: numerical comparison to explicit sample loops
+grad=reshape(mod(0:71,19),8,9)/18;
+for m=1:4
+    for t=1:3
+        method=methods{m};
+        style=styles{t};
+        opts=struct('Method',method,'PadValue',types{t});
+        got=WellnerImage(grad,opts);
+        if any(strcmp(method,{'LR','RL'}))
+            S=max(1,round(size(grad,2)/8)); pad=[0 S];
+        else
+            S=max(1,round(size(grad,1)/8)); pad=[S 0];
+        end
+        if any(strcmp(method,{'LR','UD'}))
+            padded=PadArray(grad,pad,'Pre',style);
+        else
+            padded=PadArray(grad,pad,'Post',style);
+        end
+        expected=false(size(grad));
+        for i=1:size(grad,1)
+            for j=1:size(grad,2)
+                neighborSum=0;
+                for k=1:S
+                    switch method
+                        case 'LR', neighborSum=neighborSum+padded(i,S+j-k);
+                        case 'RL', neighborSum=neighborSum+padded(i,j+k);
+                        case 'UD', neighborSum=neighborSum+padded(S+i-k,j);
+                        case 'DU', neighborSum=neighborSum+padded(i+k,j);
+                    end
+                end
+                expected(i,j)=grad(i,j)>0.85*neighborSum/S;
+            end
+        end
+        assert(isequal(got,expected));
+        testCount=testCount+1;
+    end
+end
+
+%% Floating Otsu mask must use the quantized histogram levels
+floatImage=[0 0.499 0.502 1];
+[mask,~,info]=OtsuThreshold(floatImage);
+quantized=floor(floatImage*255+0.5);
+assert(isequal(mask,quantized>info.thresholdLevel));
+testCount=testCount+1;
+
 fprintf('PASS: %d MATLAB assertions/groups (all tests reached).\n',testCount);
