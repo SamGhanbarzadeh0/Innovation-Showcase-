@@ -1,21 +1,15 @@
-# Quality validation after the Stage 03 image-review failure
+# Ground-truth evaluation of the thresholding examples
 
-The earlier MATLAB `Regression tests: PASS` only established that specified assertions and output shapes succeeded. Its synthetic pictures were not a scientifically valid segmentation benchmark.
+The first test figures demonstrated a practical limitation of assertion-based validation: a script can calculate neighborhood means correctly and still produce unhelpful segmentation masks. This benchmark therefore measures predictions against an explicit reference image rather than using figure appearance as a substitute for accuracy.
 
-**Current quality-review branch:** `fix/stage-03b-quantitative-qc-2026-11-20`.
-
-Run in MATLAB R2024a (the user's verified environment) from the extracted repository root:
+From the repository root:
 
 ```matlab
 run('tests/run_quality_validation.m')
 ```
 
-This creates `validation_results/MATLAB_Quality_Validation_YYYYMMDD_HHMMSS.zip` with:
-- `quality_metrics.csv`: TP/FP/TN/FN, Dice, IoU and error rates for 9 method variants across 3 fixed synthetic conditions
-- `comparison_uniform.png`, `comparison_uneven.png`, `comparison_low_contrast.png`
-- `input_*.png`, `truth_*.png`, `quality_benchmark_arrays.mat`, `status.txt`, `regression_console.txt`
-- Optional `printedtext_qualitative.png` if MATLAB can locate that sample
+The script creates deterministic synthetic images with dark objects against a light background. It records nine algorithm configurations under uniform illumination, uneven illumination and reduced contrast, then exports confusion counts, Dice, IoU, sensitivity, specificity and balanced accuracy. Generated `comparison_*.png` files show the input, reference and prediction using the same foreground convention.
 
-**Send the complete ZIP back to the analysis conversation.** A quality label of PASS is never inferred from a completed plotting command: actual Dice and IoU, comparison against the ground truth, and visually readable results are all required.
+The corresponding MATLAB R2024a run passed 72 regression groups. Its 27 confusion matrices and metric calculations were independently checked against the stored masks. The three benchmark conditions, however, all use the **same reference geometry**. Their scores are descriptive of those conditions, not of general document-binarization performance.
 
-All masks use true=dark foreground for evaluation; the displayed images show dark objects against white background. No clinical performance or comparison with the user's original code is claimed without matching tests.
+An optional `printedtext.png` figure provides an unlabeled visual comparison. It is not assigned a Dice score. For comparisons with the original source and with MathWorks toolbox baselines across multiple geometries, use [the later matched benchmark](final/README.md).
