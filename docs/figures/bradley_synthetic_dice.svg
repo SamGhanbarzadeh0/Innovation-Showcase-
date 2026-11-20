@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470" role="img" aria-labelledby="title desc">
+  <title id="title">Centered Bradley mean Dice on 60 labeled synthetic images</title>
+  <desc id="desc">Original implementation: 0.9583; repaired default sensitivity 0.20: 0.6453; corrected centered preset sensitivity 0.08: 0.9542. These values are descriptive for synthetic images, not real-document accuracy.</desc>
+  <!-- Data: MATLAB R2024a, main run 44769293994, method_summary.csv and bradley_quality_gate.csv. Bars start at zero. -->
+  <rect width="900" height="470" fill="#ffffff"/>
+  <text x="84" y="42" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="600" fill="#213442">Bradley thresholding: mean Dice on synthetic masks</text>
+  <text x="84" y="70" font-family="Arial,Helvetica,sans-serif" font-size="15" fill="#566773">Same 60 labeled 128 × 128 images; higher is better</text>
+  <g font-family="Arial,Helvetica,sans-serif">
+  <line x1="84" y1="364" x2="822" y2="364" stroke="#d9dfe3" stroke-width="2"/>
+  <text x="70" y="369" text-anchor="end" font-size="14" fill="#3c4750">0.00</text>
+  <line x1="84" y1="299" x2="822" y2="299" stroke="#d9dfe3" stroke-width="1"/>
+  <text x="70" y="304" text-anchor="end" font-size="14" fill="#3c4750">0.25</text>
+  <line x1="84" y1="234" x2="822" y2="234" stroke="#d9dfe3" stroke-width="1"/>
+  <text x="70" y="239" text-anchor="end" font-size="14" fill="#3c4750">0.50</text>
+  <line x1="84" y1="169" x2="822" y2="169" stroke="#d9dfe3" stroke-width="1"/>
+  <text x="70" y="174" text-anchor="end" font-size="14" fill="#3c4750">0.75</text>
+  <line x1="84" y1="104" x2="822" y2="104" stroke="#d9dfe3" stroke-width="1"/>
+  <text x="70" y="109" text-anchor="end" font-size="14" fill="#3c4750">1.00</text>
+  <rect x="130" y="114.846" width="135" height="249.154" fill="#6a7785" rx="2"/>
+  <text x="197.5" y="101.846" text-anchor="middle" font-size="20" font-weight="600" fill="#243441">0.9583</text>
+  <text x="197.5" y="391" text-anchor="middle" font-size="15" fill="#263a49">Original centered</text>
+  <rect x="340" y="196.233" width="135" height="167.767" fill="#ad776c" rx="2"/>
+  <text x="407.5" y="183.233" text-anchor="middle" font-size="20" font-weight="600" fill="#243441">0.6453</text>
+  <text x="407.5" y="391" text-anchor="middle" font-size="15" fill="#263a49">Repaired default 0.20</text>
+  <rect x="550" y="115.898" width="135" height="248.102" fill="#3b6e88" rx="2"/>
+  <text x="617.5" y="102.898" text-anchor="middle" font-size="20" font-weight="600" fill="#243441">0.9542</text>
+  <text x="617.5" y="391" text-anchor="middle" font-size="15" fill="#263a49">Centered preset 0.08</text>
+  <text x="455" y="433" text-anchor="middle" font-size="13" fill="#65757f">Sensitivity 0.08 was selected after prior fixture inspection; no external real-image validation.</text>
+  </g>
+</svg>
