@@ -1,53 +1,49 @@
 function BW = BradleyImage(I, opts)
-%% Start Analysis - Define Parameters
-% step 1: Retrieve & Set Options from 'opts' Structure
-if isfield(opts, 'Direction'),            Direction = opts.Direction; end
-if isfield(opts, 'PadValue'),             PadValue = opts.PadValue;   end
-
-% step 2: Convert Abbreviated Options to Full Descriptions
-switch Direction
-    case 'Bo';                            Direction = 'Both';
-    case 'Pr';                            Direction = 'Pre';
-    case 'Po';                            Direction = 'Post';
+%BRADLEYIMAGE Adaptive thresholding against a padded local mean.
+%   Pre uses preceding rows/columns, Post following rows/columns,
+%   Both a centered window. Each output pixel is assigned.
+%   The padded *image* (not its integral image) is summed locally.
+validateattributes(I,{'numeric','logical'},{'2d','nonempty','real'},mfilename,'I');
+if nargin<2 || ~isstruct(opts) || ~isfield(opts,'Direction') || ~isfield(opts,'PadValue')
+    error('BradleyImage:Options','opts.Direction and opts.PadValue are required.');
 end
-switch PadValue
-    case 'Cr';                            PadValue = 'Circular';
-    case 'Sm';                            PadValue = 'Symmetric';
-    case 'Rp';                            PadValue = 'Replicate';
+direction=validatestring(opts.Direction,{'Bo','Pr','Po','Both','Pre','Post'});
+type=validatestring(opts.PadValue,{'Rp','Sm','Cr','Replicate','Symmetric','Circular'});
+switch direction
+    case 'Bo', direction='Both';
+    case 'Pr', direction='Pre';
+    case 'Po', direction='Post';
 end
-
-%% step 3: Calculate Integral of Image
-% step 3-1: Compute Integral Image & Display It
-J = IntegralImage(I);
-
-%% step 4: Binarize Image Based on Bradley Method
-BW = zeros(size(I));  % Initialize Binary Output
-NeighbourhoodSize = round(size(I) / 8);  % Define Neighborhood Size
-S1 = NeighbourhoodSize(1); S2 = NeighbourhoodSize(2);
-
-% step 4-1: Set Sensitivity & Padding Parameters
-Nr = round(S1 / 2) + 1; Nc = round(S2 / 2) + 1; T = 20;
-JNew = PadArray(J, [Nr, Nc], Direction, PadValue);  % Apply Padding
-
-[Rows, Colms] = size(JNew);
-
-%% step 5: Apply Bradley Thresholding for Each Pixel
-for i = Nr + 1:Rows - Nr
-    for j = Nc + 1:Colms - Nc
-        x1 = i - round(S1 / 2);
-        x2 = i + round(S1 / 2);
-        y1 = j - round(S2 / 2);
-        y2 = j + round(S2 / 2);
-
-        % step 5-1: Compute Local Sum & Compare with Threshold
-        Count = (x2 - x1) * (y2 - y1);
-        Sum = JNew(x2, y2) - JNew(x1 - 1, y2) - JNew(x2, y1 - 1) + JNew(x1 - 1, y1 - 1);
-
-        if (I(i - Nr, j - Nc) * Count) <= (Sum * (100 - T) / 100)
-            BW(i - Nr, j - Nc) = 0;
-        else
-            BW(i - Nr, j - Nc) = 1;
-        end
-    end
+switch type
+    case 'Rp', type='Replicate';
+    case 'Sm', type='Symmetric';
+    case 'Cr', type='Circular';
 end
+[r,c]=size(I);
+S=max([1 1],round([r c]/8));
+radius=max([1 1],round(S/2));
+T=0.20;
+if isfield(opts,'Sensitivity')
+    validateattributes(opts.Sensitivity,{'numeric'},{'scalar','finite','>=',0,'<',1});
+    T=double(opts.Sensitivity);
+end
+if strcmp(direction,'Both')
+    before=radius; after=radius;
+elseif strcmp(direction,'Pre')
+    before=radius; after=[0 0];
+else
+    before=[0 0]; after=radius;
+end
+J=double(PadArray(I,radius,direction,type));
+rows=before(1)+after(1)+1;
+cols=before(2)+after(2)+1;
+C=zeros(size(J,1)+1,size(J,2)+1);
+C(2:end,2:end)=cumsum(cumsum(J,1),2);
+% A single vectorized rectangle-sum identity for all pixels.
+A=C(rows+1:rows+r,cols+1:cols+c);
+B=C(1:r,cols+1:cols+c);
+D=C(rows+1:rows+r,1:c);
+E=C(1:r,1:c);
+localMean=(A-B-D+E)/(rows*cols);
+BW=double(I)>(1-T)*localMean;
 end
