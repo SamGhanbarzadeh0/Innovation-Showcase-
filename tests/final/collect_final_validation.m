@@ -227,6 +227,10 @@ writeText(fullfile(out,'status.txt'),status);
 outputZip=fullfile(parent,['MATLAB_Final_Validation_' stamp '.zip']);
 zip(outputZip,{['final_' stamp]},parent);
 fprintf('\n%s\nZIP: %s\n',status,outputZip);
+% Nonzero exit for CI while preserving diagnostic files and the ZIP.
+if ~testPassed || ~extendedPassed || nCorrectedErr>0 || ~figuresOK
+    error('Final:QualityGate','MATLAB functional validation failed; inspect the output ZIP.');
+end
 end
 
 function number=caseNumFromParams(geometry,illum,contrast,replicate)
