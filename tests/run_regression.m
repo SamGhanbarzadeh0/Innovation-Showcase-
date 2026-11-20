@@ -180,4 +180,20 @@ quantized=floor(floatImage*255+0.5);
 assert(isequal(mask,quantized>info.thresholdLevel));
 testCount=testCount+1;
 
+%% Local mean: explicitly tested margin for near-equality stability
+I=0.8*ones(16);
+[BW,M]=LocalMeanThreshold(I,[3 3],'Both','Replicate',0.12);
+assert(all(BW(:)) && max(abs(M(:)-0.8))<1e-10);
+testCount=testCount+1;
+[X,Y]=meshgrid(1:16,1:16);
+I=0.60+0.001*X+0.001*Y;
+BW=LocalMeanThreshold(I,[3 3],'Both','Replicate',0.12);
+assert(all(BW(:))); % A smooth background should remain all background.
+testCount=testCount+1;
+I=0.8*ones(16);
+I(:,6:7)=0.4;
+BW=LocalMeanThreshold(I,[3 3],'Both','Replicate',0.12);
+assert(~any(BW(:,6:7),'all') && all(BW(:,1:2),'all'));
+testCount=testCount+1;
+
 fprintf('PASS: %d MATLAB assertions/groups (all tests reached).\n',testCount);
