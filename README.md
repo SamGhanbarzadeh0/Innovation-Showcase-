@@ -40,6 +40,8 @@ The [MATLAB R2024a run on the published source](https://github.com/hesamghd/Inno
 | Corrected window calculation, sensitivity 0.20 | 0.6453 |
 | Corrected window calculation, centered preset 0.08 | 0.9542 |
 
+![Mean Dice of three centered Bradley configurations on the same 60 labeled synthetic images](docs/figures/bradley_synthetic_dice.svg)
+
 Fixing the window calculation exposed a substantial loss in segmentation performance at the earlier sensitivity setting. The labeled 0.08 preset recovered most of that loss but remained slightly below the original on this benchmark. Both numerical correctness and the quality of the binary mask are therefore assessed explicitly; the two should not be treated as interchangeable.
 
 The eight installed MATLAB examples were processed without runtime errors. They do not have trusted ground-truth masks in this experiment, so their output figures provide **qualitative comparisons only**. The synthetic scores are not evidence of universal superiority, nor do they establish performance on medical images.
